@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PSD2 Vaste Lasten API — Proof of Concept</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F8FAFC; color: #0F172A; }
+
+  /* Header */
+  .header { background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: white; padding: 24px 32px; }
+  .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+  .header p { color: #94A3B8; font-size: 13px; margin-top: 4px; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; }
+  .badge-blue { background: rgba(59,130,246,0.15); color: #3B82F6; }
+  .badge-green { background: rgba(16,185,129,0.15); color: #10B981; }
+
+  .nav-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .nav-btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.1); color: white; transition: background 0.2s; }
+  .nav-btn:hover { background: rgba(255,255,255,0.2); }
+  .nav-btn.active { background: #3B82F6; }
+  .btn-start { padding: 8px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 700; background: #10B981; color: white; }
+  .btn-start:hover { background: #059669; }
+
+  /* Main */
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 32px; }
+
+  /* Landing */
+  .landing { text-align: center; padding: 64px 24px; }
+  .landing .icon { font-size: 48px; margin-bottom: 16px; }
+  .landing h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .landing p { color: #64748B; max-width: 520px; margin: 0 auto 24px; line-height: 1.6; font-size: 14px; }
+  .btn-hero { padding: 14px 36px; border-radius: 10px; border: none; cursor: pointer; font-size: 15px; font-weight: 700; background: linear-gradient(135deg, #3B82F6, #2563EB); color: white; box-shadow: 0 4px 14px rgba(59,130,246,0.35); }
+  .btn-hero:hover { box-shadow: 0 6px 20px rgba(59,130,246,0.45); }
+
+  /* Pipeline */
+  .pipeline { display: flex; gap: 8px; padding: 20px 0; }
+  .pipeline-step { flex: 1; padding: 16px; border-radius: 10px; background: white; border: 1.5px solid #E2E8F0; transition: all 0.4s ease; }
+  .pipeline-step.done { background: #F0FDF4; border-color: #10B981; }
+  .pipeline-step.active { background: #EFF6FF; border-color: #3B82F6; }
+  .step-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .step-num { width: 24px; height: 24px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; background: #CBD5E1; color: white; }
+  .step-num.done { background: #10B981; }
+  .step-num.active { background: #3B82F6; }
+  .step-label { font-size: 12px; font-weight: 700; color: #94A3B8; }
+  .step-label.highlight { color: #0F172A; }
+  .step-desc { font-size: 11px; color: #64748B; }
+  .step-bar { margin-top: 8px; height: 3px; background: #DBEAFE; border-radius: 2px; overflow: hidden; }
+  .step-bar-fill { width: 60%; height: 100%; background: #3B82F6; border-radius: 2px; animation: pulse 1s infinite; }
+
+  /* Summary Cards */
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .summary-card { background: white; border-radius: 12px; padding: 20px; border: 1px solid #E2E8F0; }
+  .summary-card .label { font-size: 12px; color: #64748B; font-weight: 500; margin-bottom: 4px; }
+  .summary-card .value { font-size: 26px; font-weight: 700; }
+
+  /* Category Bar */
+  .cat-section { background: white; border-radius: 12px; padding: 20px 24px; border: 1px solid #E2E8F0; margin-bottom: 24px; }
+  .cat-section h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+  .cat-bar { display: flex; gap: 4px; height: 32px; border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
+  .cat-legend { display: flex; flex-wrap: wrap; gap: 16px; }
+  .cat-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #475569; }
+  .cat-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+  /* Fixed Costs Table */
+  .fc-table { background: white; border-radius: 12px; border: 1px solid #E2E8F0; overflow: hidden; }
+  .fc-table-header { padding: 16px 24px; border-bottom: 1px solid #E2E8F0; }
+  .fc-table-header h3 { font-size: 14px; font-weight: 700; }
+  .fc-row { display: grid; grid-template-columns: 40px 1.5fr 1fr 100px 110px 100px 40px; align-items: center; padding: 14px 24px; cursor: pointer; border-bottom: 1px solid #F1F5F9; transition: background 0.15s; }
+  .fc-row:hover { background: #F8FAFC; }
+  .fc-row:last-child { border-bottom: none; }
+  .fc-row .icon { font-size: 20px; }
+  .fc-row .name { font-size: 13px; font-weight: 600; }
+  .fc-row .sublabel { font-size: 11px; color: #94A3B8; }
+  .fc-row .amount { font-size: 14px; font-weight: 700; text-align: right; }
+  .fc-row .freq { font-size: 11px; color: #64748B; text-align: center; }
+  .fc-row .arrow { color: #94A3B8; text-align: right; font-size: 16px; }
+
+  .confidence-bar { display: flex; align-items: center; gap: 8px; }
+  .conf-track { flex: 1; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden; }
+  .conf-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+  .conf-pct { font-size: 11px; color: #6B7280; min-width: 32px; font-variant-numeric: tabular-nums; }
+
+  /* Expanded Detail */
+  .fc-detail { padding: 0 24px 16px 64px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .detail-box { background: #F8FAFC; border-radius: 8px; padding: 14px; }
+  .detail-title { font-size: 11px; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .detail-row { font-size: 12px; color: #334155; margin-bottom: 4px; }
+  .detail-row .key { color: #94A3B8; }
+
+  /* API View */
+  .api-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .api-header h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .api-header code { background: #F1F5F9; padding: 2px 6px; border-radius: 4px; font-size: 11px; color: #64748B; }
+  .api-pre { background: #0F172A; color: #E2E8F0; border-radius: 12px; padding: 24px; font-size: 11.5px; line-height: 1.6; overflow: auto; max-height: 70vh; white-space: pre-wrap; word-break: break-word; }
+
+  /* Consumers */
+  .consumers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .consumer-card { background: white; border-radius: 12px; border: 1px solid #E2E8F0; padding: 24px; }
+  .consumer-card .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .consumer-card .card-header span { font-size: 24px; }
+  .consumer-card h4 { font-size: 14px; font-weight: 700; }
+  .consumer-card p { font-size: 12px; color: #64748B; line-height: 1.6; margin-bottom: 12px; }
+  .consumer-card code { display: block; background: #F8FAFC; padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #475569; margin-bottom: 8px; }
+  .field-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .field-tag { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-family: monospace; }
+
+  .hidden { display: none; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; width: 30%; }
+    50% { opacity: 0.7; width: 80%; }
+  }
+  @media (max-width: 768px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .fc-row { grid-template-columns: 32px 1fr 80px 40px; }
+    .fc-row .badge, .fc-row .freq, .fc-row .confidence-bar { display: none; }
+    .consumers-grid { grid-template-columns: 1fr; }
+    .pipeline { flex-direction: column; }
+    .fc-detail { grid-template-columns: 1fr; padding-left: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <div>
+      <h1>PSD2 Vaste Lasten API <span class="badge badge-blue">Proof of Concept</span></h1>
+      <p>PSD2-as-a-Service → Transactie-analyse → Categorisatie → Data Product</p>
+    </div>
+    <div class="nav-btns">
+      <button class="nav-btn hidden" id="btn-dashboard" onclick="showView('dashboard')">Dashboard</button>
+      <button class="nav-btn hidden" id="btn-api" onclick="showView('api')">API Output</button>
+      <button class="nav-btn hidden" id="btn-consumers" onclick="showView('consumers')">Afnemers</button>
+      <button class="btn-start" id="btn-start" onclick="runPipeline()">▶ Start Demo</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Landing -->
+  <div id="view-landing">
+    <div class="landing">
+      <div class="icon">🏦</div>
+      <h2>PSD2 Vaste Lasten Herkenning</h2>
+      <p>Deze demo laat zien hoe je via een PSD2-as-a-Service leverancier (GoCardless/Nordigen sandbox) transacties ophaalt, vaste lasten herkent, categoriseert en omzet naar een herbruikbaar data product.</p>
+      <button class="btn-hero" onclick="runPipeline()">▶ Start Pipeline Demo</button>
+    </div>
+  </div>
+
+  <!-- Pipeline -->
+  <div id="view-pipeline" class="hidden"></div>
+
+  <!-- Dashboard -->
+  <div id="view-dashboard" class="hidden"></div>
+
+  <!-- API -->
+  <div id="view-api" class="hidden"></div>
+
+  <!-- Consumers -->
+  <div id="view-consumers" class="hidden"></div>
+</main>
+
+<script>
+// ==================== DATA ====================
+const TRANSACTIONS = [
+  { id:"tx_001",bookingDate:"2025-12-01",amount:-189,currency:"EUR",creditorName:"Vattenfall NL",creditorIban:"NL91ABNA0417164300",remittanceInfo:"Maandtermijn energie dec 2025 klantnr 8827361",mcc:"4900"},
+  { id:"tx_002",bookingDate:"2025-11-01",amount:-189,currency:"EUR",creditorName:"Vattenfall NL",creditorIban:"NL91ABNA0417164300",remittanceInfo:"Maandtermijn energie nov 2025 klantnr 8827361",mcc:"4900"},
+  { id:"tx_003",bookingDate:"2025-10-01",amount:-189,currency:"EUR",creditorName:"Vattenfall NL",creditorIban:"NL91ABNA0417164300",remittanceInfo:"Maandtermijn energie okt 2025 klantnr 8827361",mcc:"4900"},
+  { id:"tx_004",bookingDate:"2025-09-01",amount:-185,currency:"EUR",creditorName:"Vattenfall NL",creditorIban:"NL91ABNA0417164300",remittanceInfo:"Maandtermijn energie sep 2025 klantnr 8827361",mcc:"4900"},
+  { id:"tx_010",bookingDate:"2025-12-01",amount:-142.5,currency:"EUR",creditorName:"CZ Zorgverzekeringen",creditorIban:"NL86INGB0002445588",remittanceInfo:"Premie zorgverzekering dec 2025 polisnr ZV-2025-44821",mcc:"6300"},
+  { id:"tx_011",bookingDate:"2025-11-01",amount:-142.5,currency:"EUR",creditorName:"CZ Zorgverzekeringen",creditorIban:"NL86INGB0002445588",remittanceInfo:"Premie zorgverzekering nov 2025 polisnr ZV-2025-44821",mcc:"6300"},
+  { id:"tx_012",bookingDate:"2025-10-01",amount:-142.5,currency:"EUR",creditorName:"CZ Zorgverzekeringen",creditorIban:"NL86INGB0002445588",remittanceInfo:"Premie zorgverzekering okt 2025 polisnr ZV-2025-44821",mcc:"6300"},
+  { id:"tx_013",bookingDate:"2025-09-01",amount:-142.5,currency:"EUR",creditorName:"CZ Zorgverzekeringen",creditorIban:"NL86INGB0002445588",remittanceInfo:"Premie zorgverzekering sep 2025 polisnr ZV-2025-44821",mcc:"6300"},
+  { id:"tx_020",bookingDate:"2025-12-01",amount:-1247.83,currency:"EUR",creditorName:"ABN AMRO Hypotheken",creditorIban:"NL02ABNA0123456789",remittanceInfo:"Hypotheek maandlast dec 2025 leningnr HYP-992841",mcc:"6012"},
+  { id:"tx_021",bookingDate:"2025-11-01",amount:-1247.83,currency:"EUR",creditorName:"ABN AMRO Hypotheken",creditorIban:"NL02ABNA0123456789",remittanceInfo:"Hypotheek maandlast nov 2025 leningnr HYP-992841",mcc:"6012"},
+  { id:"tx_022",bookingDate:"2025-10-01",amount:-1247.83,currency:"EUR",creditorName:"ABN AMRO Hypotheken",creditorIban:"NL02ABNA0123456789",remittanceInfo:"Hypotheek maandlast okt 2025 leningnr HYP-992841",mcc:"6012"},
+  { id:"tx_023",bookingDate:"2025-09-01",amount:-1247.83,currency:"EUR",creditorName:"ABN AMRO Hypotheken",creditorIban:"NL02ABNA0123456789",remittanceInfo:"Hypotheek maandlast sep 2025 leningnr HYP-992841",mcc:"6012"},
+  { id:"tx_030",bookingDate:"2025-12-05",amount:-64.99,currency:"EUR",creditorName:"KPN B.V.",creditorIban:"NL41INGB0006880612",remittanceInfo:"Internet + iTV dec 2025 klantnr KPN-2291847",mcc:"4899"},
+  { id:"tx_031",bookingDate:"2025-11-05",amount:-64.99,currency:"EUR",creditorName:"KPN B.V.",creditorIban:"NL41INGB0006880612",remittanceInfo:"Internet + iTV nov 2025 klantnr KPN-2291847",mcc:"4899"},
+  { id:"tx_032",bookingDate:"2025-10-05",amount:-64.99,currency:"EUR",creditorName:"KPN B.V.",creditorIban:"NL41INGB0006880612",remittanceInfo:"Internet + iTV okt 2025 klantnr KPN-2291847",mcc:"4899"},
+  { id:"tx_033",bookingDate:"2025-09-05",amount:-64.99,currency:"EUR",creditorName:"KPN B.V.",creditorIban:"NL41INGB0006880612",remittanceInfo:"Internet + iTV sep 2025 klantnr KPN-2291847",mcc:"4899"},
+  { id:"tx_040",bookingDate:"2025-12-15",amount:-24.99,currency:"EUR",creditorName:"T-Mobile Netherlands",creditorIban:"NL09DEUT0265153927",remittanceInfo:"Mobiel abonnement dec 2025 nr 06-12345678",mcc:"4812"},
+  { id:"tx_041",bookingDate:"2025-11-15",amount:-24.99,currency:"EUR",creditorName:"T-Mobile Netherlands",creditorIban:"NL09DEUT0265153927",remittanceInfo:"Mobiel abonnement nov 2025 nr 06-12345678",mcc:"4812"},
+  { id:"tx_042",bookingDate:"2025-10-15",amount:-24.99,currency:"EUR",creditorName:"T-Mobile Netherlands",creditorIban:"NL09DEUT0265153927",remittanceInfo:"Mobiel abonnement okt 2025 nr 06-12345678",mcc:"4812"},
+  { id:"tx_043",bookingDate:"2025-09-15",amount:-24.99,currency:"EUR",creditorName:"T-Mobile Netherlands",creditorIban:"NL09DEUT0265153927",remittanceInfo:"Mobiel abonnement sep 2025 nr 06-12345678",mcc:"4812"},
+  { id:"tx_050",bookingDate:"2025-12-08",amount:-15.99,currency:"EUR",creditorName:"Netflix International",creditorIban:"NL94ABNA0826442812",remittanceInfo:"Netflix Premium dec 2025",mcc:"4899"},
+  { id:"tx_051",bookingDate:"2025-11-08",amount:-15.99,currency:"EUR",creditorName:"Netflix International",creditorIban:"NL94ABNA0826442812",remittanceInfo:"Netflix Premium nov 2025",mcc:"4899"},
+  { id:"tx_052",bookingDate:"2025-10-08",amount:-15.99,currency:"EUR",creditorName:"Netflix International",creditorIban:"NL94ABNA0826442812",remittanceInfo:"Netflix Premium okt 2025",mcc:"4899"},
+  { id:"tx_053",bookingDate:"2025-09-08",amount:-13.99,currency:"EUR",creditorName:"Netflix International",creditorIban:"NL94ABNA0826442812",remittanceInfo:"Netflix Standard sep 2025",mcc:"4899"},
+  { id:"tx_054",bookingDate:"2025-12-10",amount:-10.99,currency:"EUR",creditorName:"Spotify AB",creditorIban:"NL25ABNA0560839752",remittanceInfo:"Spotify Premium Individual dec 2025",mcc:"5815"},
+  { id:"tx_055",bookingDate:"2025-11-10",amount:-10.99,currency:"EUR",creditorName:"Spotify AB",creditorIban:"NL25ABNA0560839752",remittanceInfo:"Spotify Premium Individual nov 2025",mcc:"5815"},
+  { id:"tx_056",bookingDate:"2025-10-10",amount:-10.99,currency:"EUR",creditorName:"Spotify AB",creditorIban:"NL25ABNA0560839752",remittanceInfo:"Spotify Premium Individual okt 2025",mcc:"5815"},
+  { id:"tx_060",bookingDate:"2025-12-01",amount:-34.95,currency:"EUR",creditorName:"Basic-Fit Nederland",creditorIban:"NL76RABO0156789012",remittanceInfo:"Lidmaatschap Premium dec 2025 lid 9912847",mcc:"7941"},
+  { id:"tx_061",bookingDate:"2025-11-01",amount:-34.95,currency:"EUR",creditorName:"Basic-Fit Nederland",creditorIban:"NL76RABO0156789012",remittanceInfo:"Lidmaatschap Premium nov 2025 lid 9912847",mcc:"7941"},
+  { id:"tx_062",bookingDate:"2025-10-01",amount:-34.95,currency:"EUR",creditorName:"Basic-Fit Nederland",creditorIban:"NL76RABO0156789012",remittanceInfo:"Lidmaatschap Premium okt 2025 lid 9912847",mcc:"7941"},
+  { id:"tx_063",bookingDate:"2025-09-01",amount:-34.95,currency:"EUR",creditorName:"Basic-Fit Nederland",creditorIban:"NL76RABO0156789012",remittanceInfo:"Lidmaatschap Premium sep 2025 lid 9912847",mcc:"7941"},
+  { id:"tx_070",bookingDate:"2025-12-01",amount:-187.5,currency:"EUR",creditorName:"Centraal Beheer",creditorIban:"NL55RABO0349876123",remittanceInfo:"Autoverzekering Q4-2025 polisnr AV-2025-77123",mcc:"6300"},
+  { id:"tx_071",bookingDate:"2025-09-01",amount:-187.5,currency:"EUR",creditorName:"Centraal Beheer",creditorIban:"NL55RABO0349876123",remittanceInfo:"Autoverzekering Q3-2025 polisnr AV-2025-77123",mcc:"6300"},
+  { id:"tx_080",bookingDate:"2025-02-28",amount:-812,currency:"EUR",creditorName:"Gemeente Amsterdam",creditorIban:"NL32BNGH0285063712",remittanceInfo:"Gemeentelijke belastingen 2025 aanslagnr GB-2025-442918",mcc:"9311"},
+  { id:"tx_090",bookingDate:"2025-12-12",amount:-47.82,currency:"EUR",creditorName:"Albert Heijn 1542",creditorIban:"NL22RABO0123987456",remittanceInfo:"Betaalautomaat 12-12-2025 AH Kalverstraat",mcc:"5411"},
+  { id:"tx_091",bookingDate:"2025-12-10",amount:-128.5,currency:"EUR",creditorName:"Bol.com",creditorIban:"NL62ABNA0507372901",remittanceInfo:"Bestelling 9928471-A 2x artikelen",mcc:"5999"},
+  { id:"tx_092",bookingDate:"2025-11-28",amount:-35,currency:"EUR",creditorName:"Shell Station A2",creditorIban:"NL18INGB0007234567",remittanceInfo:"Tankbeurt 28-11-2025",mcc:"5541"},
+  { id:"tx_093",bookingDate:"2025-11-15",amount:2850,currency:"EUR",creditorName:"Werkgever B.V.",creditorIban:"NL44RABO0987654321",remittanceInfo:"Salaris november 2025",mcc:"0000"},
+  { id:"tx_094",bookingDate:"2025-12-15",amount:2850,currency:"EUR",creditorName:"Werkgever B.V.",creditorIban:"NL44RABO0987654321",remittanceInfo:"Salaris december 2025",mcc:"0000"},
+  { id:"tx_095",bookingDate:"2025-04-01",amount:-347.62,currency:"EUR",creditorName:"Waternet",creditorIban:"NL81INGB0002990066",remittanceInfo:"Waterschapsbelasting 2025 termijn 1/4",mcc:"4941"},
+  { id:"tx_096",bookingDate:"2025-07-01",amount:-347.62,currency:"EUR",creditorName:"Waternet",creditorIban:"NL81INGB0002990066",remittanceInfo:"Waterschapsbelasting 2025 termijn 2/4",mcc:"4941"},
+  { id:"tx_097",bookingDate:"2025-10-01",amount:-347.62,currency:"EUR",creditorName:"Waternet",creditorIban:"NL81INGB0002990066",remittanceInfo:"Waterschapsbelasting 2025 termijn 3/4",mcc:"4941"},
+];
+
+const RULES = [
+  {cat:"wonen",sub:"hypotheek",label:"Hypotheek",icon:"🏠",kw:["hypotheek","mortgage","leningnr"],mccR:[6010,6020],color:"#3B82F6"},
+  {cat:"wonen",sub:"energie",label:"Energie",icon:"⚡",kw:["energie","vattenfall","eneco","essent","greenchoice","maandtermijn energie"],mccR:[4900,4999],color:"#F59E0B"},
+  {cat:"wonen",sub:"water",label:"Water & Belastingen",icon:"💧",kw:["waternet","waterschap","waterschapsbelasting"],mccR:[4940,4950],color:"#06B6D4"},
+  {cat:"wonen",sub:"gemeentebelasting",label:"Gemeentebelastingen",icon:"🏛️",kw:["gemeente","gemeentelijke belasting","aanslagnr"],mccR:[9300,9399],color:"#8B5CF6"},
+  {cat:"verzekeringen",sub:"zorg",label:"Zorgverzekering",icon:"🏥",kw:["zorgverzekering","premie zorg","polisnr zv"],mccR:[6300,6399],color:"#10B981"},
+  {cat:"verzekeringen",sub:"auto",label:"Autoverzekering",icon:"🚗",kw:["autoverzekering","polisnr av","centraal beheer"],mccR:[6300,6399],color:"#EF4444"},
+  {cat:"telecom",sub:"internet",label:"Internet & TV",icon:"🌐",kw:["internet","itv","kpn","ziggo"],mccR:[4899,4899],color:"#6366F1"},
+  {cat:"telecom",sub:"mobiel",label:"Mobiel",icon:"📱",kw:["mobiel abonnement","t-mobile","vodafone"],mccR:[4812,4812],color:"#EC4899"},
+  {cat:"abonnementen",sub:"streaming",label:"Streaming",icon:"🎬",kw:["netflix","disney+","hbo","videoland"],mccR:[4899,4899],color:"#F43F5E"},
+  {cat:"abonnementen",sub:"muziek",label:"Muziek",icon:"🎵",kw:["spotify","apple music","tidal"],mccR:[5815,5815],color:"#A855F7"},
+  {cat:"abonnementen",sub:"sport",label:"Sportschool",icon:"💪",kw:["basic-fit","sportcity","anytime fitness","lidmaatschap"],mccR:[7941,7941],color:"#14B8A6"},
+];
+
+// ==================== ENGINE ====================
+function categorize(tx) {
+  const info = (tx.remittanceInfo + " " + tx.creditorName).toLowerCase();
+  const mcc = parseInt(tx.mcc) || 0;
+  for (const r of RULES) {
+    if (r.kw.some(k => info.includes(k)) || (mcc >= r.mccR[0] && mcc <= r.mccR[1])) return r;
+  }
+  return null;
+}
+
+function detectPattern(txs) {
+  if (txs.length < 2) return { freq: "eenmalig", conf: 0.3 };
+  const sorted = [...txs].sort((a,b) => new Date(a.bookingDate) - new Date(b.bookingDate));
+  const gaps = [];
+  for (let i = 1; i < sorted.length; i++) {
+    gaps.push((new Date(sorted[i].bookingDate) - new Date(sorted[i-1].bookingDate)) / 864e5);
+  }
+  const avg = gaps.reduce((a,b)=>a+b,0) / gaps.length;
+  const std = Math.sqrt(gaps.reduce((s,g)=>s+Math.pow(g-avg,2),0)/gaps.length);
+  if (avg >= 25 && avg <= 35) return { freq: "maandelijks", conf: std < 5 ? 0.95 : 0.7 };
+  if (avg >= 85 && avg <= 95) return { freq: "kwartaal", conf: std < 10 ? 0.9 : 0.6 };
+  if (avg >= 175 && avg <= 195) return { freq: "halfjaarlijks", conf: 0.85 };
+  if (avg >= 350 && avg <= 380) return { freq: "jaarlijks", conf: 0.8 };
+  return { freq: `~${Math.round(avg)}d`, conf: 0.4 };
+}
+
+function estimateNext(last, freq) {
+  const d = new Date(last);
+  if (freq === "maandelijks") d.setMonth(d.getMonth()+1);
+  else if (freq === "kwartaal") d.setMonth(d.getMonth()+3);
+  else if (freq === "halfjaarlijks") d.setMonth(d.getMonth()+6);
+  else if (freq === "jaarlijks") d.setFullYear(d.getFullYear()+1);
+  else d.setMonth(d.getMonth()+1);
+  return d.toISOString().split("T")[0];
+}
+
+function buildProduct(txs) {
+  const groups = {};
+  for (const tx of txs) {
+    if (tx.amount >= 0) continue;
+    const cat = categorize(tx);
+    if (!cat) continue;
+    const key = tx.creditorIban || tx.creditorName;
+    if (!groups[key]) groups[key] = { name: tx.creditorName, iban: tx.creditorIban, cat, txs: [] };
+    groups[key].txs.push(tx);
+  }
+  return Object.values(groups)
+    .filter(g => g.txs.length >= 2 || g.cat.sub === "gemeentebelasting")
+    .map(g => {
+      const amounts = g.txs.map(t => Math.abs(t.amount));
+      const pat = detectPattern(g.txs);
+      const latest = g.txs.sort((a,b)=>new Date(b.bookingDate)-new Date(a.bookingDate))[0];
+      const avg = amounts.reduce((a,b)=>a+b,0)/amounts.length;
+      const stable = new Set(amounts).size === 1;
+      let annual = avg;
+      if (pat.freq==="maandelijks") annual=avg*12;
+      else if (pat.freq==="kwartaal") annual=avg*4;
+      else if (pat.freq==="halfjaarlijks") annual=avg*2;
+      return {
+        id: `fc_${(g.iban||"").slice(-6)||Math.random().toString(36).slice(2,8)}`,
+        creditor:{name:g.name,iban:g.iban}, cat:g.cat.cat, sub:g.cat.sub,
+        label:g.cat.label, icon:g.cat.icon, color:g.cat.color,
+        current:Math.abs(latest.amount), avg:Math.round(avg*100)/100,
+        annual:Math.round(annual*100)/100, freq:pat.freq, conf:pat.conf,
+        stable, priceChange:stable?null:{from:Math.min(...amounts),to:Math.max(...amounts),dir:amounts[0]<amounts[amounts.length-1]?"up":"down"},
+        lastDate:latest.bookingDate, nextDate:estimateNext(latest.bookingDate,pat.freq),
+        count:g.txs.length, remittance:latest.remittanceInfo, mcc:latest.mcc
+      };
+    })
+    .sort((a,b)=>b.annual-a.annual);
+}
+
+const fmt = n => new Intl.NumberFormat("nl-NL",{style:"currency",currency:"EUR"}).format(n);
+
+// ==================== UI STATE ====================
+let fixedCosts = [];
+let expandedId = null;
+
+const STEPS = [
+  {key:"connect",label:"API Connect",desc:"Verbinding met PSD2 sandbox"},
+  {key:"fetch",label:"Transacties ophalen",desc:"Account data opvragen"},
+  {key:"analyze",label:"Analyse & Herkenning",desc:"Vaste lasten detecteren"},
+  {key:"enrich",label:"Verrijking",desc:"Metadata & categorisatie"},
+  {key:"product",label:"Data Product",desc:"API-ready output"},
+];
+
+function showView(name) {
+  ["landing","pipeline","dashboard","api","consumers"].forEach(v => {
+    document.getElementById("view-"+v).classList.add("hidden");
+  });
+  document.getElementById("view-"+name).classList.remove("hidden");
+  ["dashboard","api","consumers"].forEach(v => {
+    const btn = document.getElementById("btn-"+v);
+    btn.classList.toggle("active", v === name);
+  });
+}
+
+function runPipeline() {
+  fixedCosts = [];
+  expandedId = null;
+  document.getElementById("btn-start").textContent = "↻ Opnieuw";
+  ["btn-dashboard","btn-api","btn-consumers"].forEach(id => document.getElementById(id).classList.add("hidden"));
+  renderPipeline(-1);
+  showView("pipeline");
+
+  setTimeout(()=>renderPipeline(0), 300);
+  setTimeout(()=>renderPipeline(1), 1000);
+  setTimeout(()=>renderPipeline(2), 2000);
+  setTimeout(()=>renderPipeline(3), 3200);
+  setTimeout(()=>{
+    fixedCosts = buildProduct(TRANSACTIONS);
+    renderPipeline(4);
+    ["btn-dashboard","btn-api","btn-consumers"].forEach(id => document.getElementById(id).classList.remove("hidden"));
+    setTimeout(()=>{ renderDashboard(); showView("dashboard"); }, 600);
+  }, 4400);
+}
+
+// ==================== RENDERERS ====================
+function renderPipeline(currentStep) {
+  const el = document.getElementById("view-pipeline");
+  el.classList.remove("hidden");
+  el.innerHTML = '<div class="pipeline">' + STEPS.map((s,i) => {
+    const cls = i < currentStep ? "done" : i === currentStep ? "active" : "";
+    return `<div class="pipeline-step ${cls}">
+      <div class="step-header">
+        <div class="step-num ${cls}">${i < currentStep ? "✓" : i+1}</div>
+        <span class="step-label ${i<=currentStep?"highlight":""}">${s.label}</span>
+      </div>
+      <p class="step-desc">${s.desc}</p>
+      ${i===currentStep?'<div class="step-bar"><div class="step-bar-fill"></div></div>':""}
+    </div>`;
+  }).join("") + '</div>';
+}
+
+function renderDashboard() {
+  const totalMonthly = fixedCosts.filter(c=>c.freq==="maandelijks").reduce((s,c)=>s+c.current,0);
+  const totalAnnual = fixedCosts.reduce((s,c)=>s+c.annual,0);
+  const catMap = {};
+  fixedCosts.forEach(c => {
+    if(!catMap[c.cat]) catMap[c.cat]={cat:c.cat,total:0,count:0,color:c.color};
+    catMap[c.cat].total+=c.annual; catMap[c.cat].count++;
+  });
+  const cats = Object.values(catMap).sort((a,b)=>b.total-a.total);
+
+  let html = '';
+
+  // Summary cards
+  html += `<div class="summary-grid">
+    <div class="summary-card"><div class="label">Maandelijkse vaste lasten</div><div class="value">${fmt(totalMonthly)}</div></div>
+    <div class="summary-card"><div class="label">Jaarbasis (geschat)</div><div class="value">${fmt(totalAnnual)}</div></div>
+    <div class="summary-card"><div class="label">Herkende vaste lasten</div><div class="value">${fixedCosts.length}</div></div>
+    <div class="summary-card"><div class="label">Categorieën</div><div class="value">${cats.length}</div></div>
+  </div>`;
+
+  // Category bar
+  html += `<div class="cat-section"><h3>Verdeling per categorie (jaarbasis)</h3>
+    <div class="cat-bar">${cats.map(c=>`<div style="flex:${c.total/totalAnnual};background:${c.color};min-width:4px" title="${c.cat}: ${fmt(c.total)}"></div>`).join("")}</div>
+    <div class="cat-legend">${cats.map(c=>`<div class="cat-legend-item"><div class="cat-dot" style="background:${c.color}"></div>${c.cat} <strong>${fmt(c.total)}</strong> (${c.count}×)</div>`).join("")}</div>
+  </div>`;
+
+  // Fixed costs list
+  html += `<div class="fc-table"><div class="fc-table-header"><h3>Herkende vaste lasten</h3></div>`;
+  fixedCosts.forEach((fc,i) => {
+    const confPct = Math.round(fc.conf*100);
+    const confColor = confPct>=80?"#10B981":confPct>=60?"#F59E0B":"#EF4444";
+    html += `<div class="fc-row" onclick="toggleDetail('${fc.id}')">
+      <span class="icon">${fc.icon}</span>
+      <div><div class="name">${fc.creditor.name}</div><div class="sublabel">${fc.label}</div></div>
+      <span class="badge" style="background:${fc.color}18;color:${fc.color}">${fc.cat} / ${fc.sub}</span>
+      <span class="amount">${fmt(fc.current)}</span>
+      <span class="freq">${fc.freq}</span>
+      <div class="confidence-bar"><div class="conf-track"><div class="conf-fill" style="width:${confPct}%;background:${confColor}"></div></div><span class="conf-pct">${confPct}%</span></div>
+      <span class="arrow" id="arrow-${fc.id}">▼</span>
+    </div>
+    <div class="fc-detail hidden" id="detail-${fc.id}">
+      <div class="detail-box">
+        <div class="detail-title">Details</div>
+        <div class="detail-row"><span class="key">IBAN:</span> ${fc.creditor.iban}</div>
+        <div class="detail-row"><span class="key">Gemiddeld bedrag:</span> ${fmt(fc.avg)}</div>
+        <div class="detail-row"><span class="key">Jaarbasis:</span> ${fmt(fc.annual)}</div>
+        <div class="detail-row"><span class="key">Bedrag stabiel:</span> ${fc.stable?"✅ Ja":"⚠️ Nee"}</div>
+        ${fc.priceChange?`<div class="detail-row"><span class="key">Prijswijziging:</span> ${fmt(fc.priceChange.from)} → ${fmt(fc.priceChange.to)} ${fc.priceChange.dir==="up"?"📈":"📉"}</div>`:""}
+      </div>
+      <div class="detail-box">
+        <div class="detail-title">Metadata & Planning</div>
+        <div class="detail-row"><span class="key">Laatste betaling:</span> ${fc.lastDate}</div>
+        <div class="detail-row"><span class="key">Verwachte volgende:</span> ${fc.nextDate}</div>
+        <div class="detail-row"><span class="key">Aantal transacties:</span> ${fc.count}</div>
+        <div class="detail-row"><span class="key">MCC:</span> ${fc.mcc}</div>
+        <div class="detail-row"><span class="key">Omschrijving:</span> <span style="font-size:11px">${fc.remittance}</span></div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+
+  document.getElementById("view-dashboard").innerHTML = html;
+}
+
+function toggleDetail(id) {
+  const el = document.getElementById("detail-"+id);
+  const arrow = document.getElementById("arrow-"+id);
+  if (!el) return;
+  const wasHidden = el.classList.contains("hidden");
+  // Close all
+  document.querySelectorAll(".fc-detail").forEach(d=>d.classList.add("hidden"));
+  document.querySelectorAll(".arrow").forEach(a=>{ if(a) a.textContent="▼"; });
+  if (wasHidden) {
+    el.classList.remove("hidden");
+    if (arrow) arrow.textContent = "▲";
+  }
+}
+
+function renderApi() {
+  const totalMonthly = fixedCosts.filter(c=>c.freq==="maandelijks").reduce((s,c)=>s+c.current,0);
+  const totalAnnual = fixedCosts.reduce((s,c)=>s+c.annual,0);
+  const output = {
+    api_version:"1.0.0",
+    generated_at:new Date().toISOString(),
+    source:{provider:"GoCardless (Nordigen)",institution:"SANDBOXFINANCE_SFIN0000",consent_valid_until:"2026-05-28T00:00:00Z"},
+    summary:{total_monthly_fixed_costs:totalMonthly,total_annual_fixed_costs:totalAnnual,recognized_count:fixedCosts.length},
+    fixed_costs:fixedCosts
+  };
+  document.getElementById("view-api").innerHTML = `
+    <div class="api-header">
+      <div><h3>API Response — Data Product Output</h3><code>GET /api/v1/customers/{id}/fixed-costs</code></div>
+      <span class="badge badge-green">200 OK</span>
+    </div>
+    <pre class="api-pre">${JSON.stringify(output,null,2)}</pre>`;
+}
+
+function renderConsumers() {
+  const consumers = [
+    {title:"Mijn-omgeving (Portaal)",icon:"👤",desc:"Klant ziet overzicht van alle vaste lasten, verwachte volgende betaling, en kan alerts instellen bij prijswijzigingen.",endpoint:"GET /api/v1/customers/{id}/fixed-costs",fields:["label","currentAmount","frequency","expectedNextPayment","priceChange"],color:"#3B82F6"},
+    {title:"Alert / Mail Service",icon:"🔔",desc:"Automatische notificaties bij: prijswijziging, naderende betaling, nieuwe vaste last herkend, of afwijkend bedrag.",endpoint:"GET /api/v1/customers/{id}/fixed-costs/alerts",fields:["priceChange","expectedNextPayment","amountStable","confidence"],color:"#F59E0B"},
+    {title:"Financial Planning (Advisory)",icon:"📊",desc:"Adviseurs krijgen inzicht in totale lasten per categorie en jaarbasis om financieel advies op te baseren.",endpoint:"GET /api/v1/customers/{id}/fixed-costs/summary",fields:["annualizedCost","category","categoryTotals"],color:"#10B981"},
+    {title:"Risk & Acceptatie",icon:"🛡️",desc:"Bij leningaanvragen: automatisch vaste lasten in kaart brengen voor betaalcapaciteitstoets.",endpoint:"GET /api/v1/customers/{id}/fixed-costs/risk-profile",fields:["annualizedCost","confidence","frequency","transactionCount"],color:"#8B5CF6"},
+    {title:"Data Analytics / BI",icon:"📈",desc:"Geaggregeerde inzichten: welke categorieën groeien, seizoenspatronen, benchmarking tegen cohorten.",endpoint:"GET /api/v1/analytics/fixed-costs/aggregated",fields:["category","subcategory","averageAmount","priceChange"],color:"#EC4899"},
+    {title:"Compliance & Audit",icon:"📋",desc:"Herkomst traceerbaar: PSD2 consent, provider, confidence score, transactie-IDs. GDPR-compliant door design.",endpoint:"GET /api/v1/customers/{id}/fixed-costs/audit-trail",fields:["source.provider","source.consent_valid_until","metadata"],color:"#0EA5E9"},
+  ];
+  document.getElementById("view-consumers").innerHTML = `<h3 style="font-size:16px;font-weight:700;margin-bottom:20px">Afnemers van het Data Product</h3>
+    <div class="consumers-grid">${consumers.map(c=>`
+      <div class="consumer-card" style="border-top:3px solid ${c.color}">
+        <div class="card-header"><span>${c.icon}</span><h4>${c.title}</h4></div>
+        <p>${c.desc}</p>
+        <code>${c.endpoint}</code>
+        <div class="field-tags">${c.fields.map(f=>`<span class="field-tag" style="background:${c.color}15;color:${c.color}">${f}</span>`).join("")}</div>
+      </div>`).join("")}
+    </div>`;
+}
+
+// Override showView to lazily render
+const _showView = showView;
+showView = function(name) {
+  if (name === "api" && fixedCosts.length) renderApi();
+  if (name === "consumers" && fixedCosts.length) renderConsumers();
+  if (name === "dashboard" && fixedCosts.length) renderDashboard();
+  _showView(name);
+};
+</script>
+</body>
+</html>
