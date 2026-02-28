@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PSD2 Vaste Lasten Herkenning — POC</title>
+<title>PSD2 Vaste Lasten Herkenning — POC (Live Data)</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -20,264 +20,79 @@
   --red: #f87171;
   --radius: 12px;
 }
-
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
-  overflow-x: hidden;
-}
-
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; overflow-x: hidden; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 
-/* Header */
-.header {
-  padding: 2rem;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%);
-}
-.header-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-}
-.logo h1 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
+.header { padding: 2rem; border-bottom: 1px solid var(--border); background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%); }
+.header-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.logo { display: flex; align-items: center; gap: 0.75rem; }
+.logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+.logo h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
 .logo span { color: var(--text2); font-weight: 400; font-size: 0.85rem; }
-.badge {
-  padding: 0.3rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-.badge-live { background: rgba(52,211,153,0.15); color: var(--green); }
+.badge { padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 500; }
+.badge-live { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
 .badge-tink { background: rgba(56,189,248,0.15); color: var(--accent); }
-.badge-demo { background: rgba(251,146,60,0.15); color: var(--orange); }
 
-/* Tabs */
-.tabs {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem 2rem 0;
-  display: flex;
-  gap: 0;
-  border-bottom: 1px solid var(--border);
-  overflow-x: auto;
-}
-.tab {
-  padding: 0.75rem 1.25rem;
-  cursor: pointer;
-  color: var(--text2);
-  font-size: 0.9rem;
-  font-weight: 500;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
+.tabs { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem 0; display: flex; gap: 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.tab { padding: 0.75rem 1.25rem; cursor: pointer; color: var(--text2); font-size: 0.9rem; font-weight: 500; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
 .tab:hover { color: var(--text); }
 .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-/* Content */
-.content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-}
+.content { max-width: 1200px; margin: 0 auto; padding: 2rem; }
 .panel { display: none; }
 .panel.active { display: block; }
 
-/* Pipeline */
-.pipeline {
-  display: flex;
-  gap: 0;
-  margin: 1.5rem 0;
-  overflow-x: auto;
-  padding-bottom: 0.5rem;
-}
-.pipe-step {
-  flex: 1;
-  min-width: 140px;
-  text-align: center;
-  position: relative;
-  padding: 1rem 0.5rem;
-}
-.pipe-step::after {
-  content: '→';
-  position: absolute;
-  right: -8px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text2);
-  font-size: 1.2rem;
-}
+.pipeline { display: flex; gap: 0; margin: 1.5rem 0; overflow-x: auto; padding-bottom: 0.5rem; }
+.pipe-step { flex: 1; min-width: 130px; text-align: center; position: relative; padding: 1rem 0.5rem; }
+.pipe-step::after { content: '→'; position: absolute; right: -8px; top: 50%; transform: translateY(-50%); color: var(--text2); font-size: 1.2rem; }
 .pipe-step:last-child::after { content: ''; }
-.pipe-icon {
-  width: 48px;
-  height: 48px;
-  margin: 0 auto 0.5rem;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  transition: all 0.3s;
-}
-.pipe-step.done .pipe-icon { background: rgba(52,211,153,0.15); }
-.pipe-step.active .pipe-icon { background: rgba(56,189,248,0.2); animation: pulse 2s infinite; }
+.pipe-icon { width: 48px; height: 48px; margin: 0 auto 0.5rem; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; background: rgba(52,211,153,0.15); }
 .pipe-label { font-size: 0.8rem; color: var(--text2); }
-.pipe-status { font-size: 0.7rem; margin-top: 0.25rem; }
-.pipe-status.ok { color: var(--green); }
-.pipe-status.warn { color: var(--orange); }
+.pipe-status { font-size: 0.7rem; margin-top: 0.25rem; color: var(--green); }
 
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(56,189,248,0.3); }
-  50% { box-shadow: 0 0 0 8px rgba(56,189,248,0); }
-}
-
-/* Cards */
 .grid { display: grid; gap: 1rem; margin: 1.5rem 0; }
 .grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-.grid-4 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.grid-4 { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.25rem;
-}
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
 .card-title { font-size: 0.8rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; }
 .card-value { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
 .card-sub { font-size: 0.8rem; color: var(--text2); margin-top: 0.25rem; }
 
-/* Table */
 .table-wrap { overflow-x: auto; margin: 1rem 0; }
 table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 th { text-align: left; padding: 0.75rem 1rem; color: var(--text2); font-weight: 500; border-bottom: 1px solid var(--border); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
 td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
 tr:hover { background: var(--surface2); }
-.amount { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
-.confidence-bar { width: 60px; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-left: 0.5rem; }
-.confidence-fill { height: 100%; border-radius: 3px; }
 
-/* Bar chart */
-.bar-chart { margin: 1rem 0; }
 .bar-row { display: flex; align-items: center; gap: 0.75rem; margin: 0.5rem 0; }
-.bar-label { width: 140px; font-size: 0.85rem; text-align: right; flex-shrink: 0; }
-.bar-track { flex: 1; height: 28px; background: var(--surface2); border-radius: 6px; overflow: hidden; position: relative; }
-.bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding: 0 0.75rem; font-size: 0.75rem; font-weight: 500; transition: width 1s ease; }
+.bar-label { width: 130px; font-size: 0.85rem; text-align: right; flex-shrink: 0; }
+.bar-track { flex: 1; height: 28px; background: var(--surface2); border-radius: 6px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding: 0 0.75rem; font-size: 0.75rem; font-weight: 500; }
 .bar-val { font-size: 0.85rem; width: 100px; text-align: right; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
 
-/* Code block */
-.code-block {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.25rem;
-  overflow-x: auto;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-  line-height: 1.7;
-  max-height: 500px;
-  overflow-y: auto;
-}
+.code-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 1.7; max-height: 500px; overflow-y: auto; }
 .code-block .key { color: var(--accent); }
 .code-block .str { color: var(--green); }
 .code-block .num { color: var(--orange); }
-.code-block .bool { color: var(--accent2); }
 
-/* Section */
-.section-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin: 2rem 0 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+.section-title { font-size: 1.1rem; font-weight: 700; margin: 2rem 0 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
 .section-desc { color: var(--text2); font-size: 0.9rem; margin-bottom: 1rem; }
 
-/* Terminal output */
-.terminal {
-  background: #0d1117;
-  border: 1px solid #21262d;
-  border-radius: var(--radius);
-  padding: 1.25rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
-  line-height: 1.8;
-  overflow-x: auto;
-  white-space: pre;
-  color: #c9d1d9;
-  max-height: 600px;
-  overflow-y: auto;
-}
-.terminal .prompt { color: var(--green); }
-.terminal .ok { color: var(--green); }
-.terminal .warn { color: var(--orange); }
-.terminal .info { color: var(--accent); }
-.terminal .heading { color: #fff; font-weight: bold; }
+.terminal { background: #0d1117; border: 1px solid #21262d; border-radius: var(--radius); padding: 1.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; line-height: 1.8; overflow-x: auto; white-space: pre; color: #c9d1d9; max-height: 600px; overflow-y: auto; }
 
-/* Endpoint cards */
-.endpoint {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1rem;
-}
-.endpoint-method {
-  display: inline-block;
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
-  background: rgba(52,211,153,0.15);
-  color: var(--green);
-  margin-right: 0.5rem;
-}
+.endpoint { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+.endpoint-method { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; background: rgba(52,211,153,0.15); color: var(--green); margin-right: 0.5rem; }
 .endpoint-path { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
 .endpoint-desc { font-size: 0.8rem; color: var(--text2); margin-top: 0.5rem; }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .content { padding: 1rem; }
-  .header { padding: 1rem; }
-  .pipeline { flex-wrap: wrap; }
-  .pipe-step::after { display: none; }
-  .grid-4 { grid-template-columns: 1fr 1fr; }
-}
+.live-badge { display: inline-flex; align-items: center; gap: 0.35rem; }
+.live-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: blink 2s infinite; }
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+@media (max-width: 768px) { .content { padding: 1rem; } .header { padding: 1rem; } .pipeline { flex-wrap: wrap; } .pipe-step::after { display: none; } .grid-4 { grid-template-columns: 1fr 1fr; } }
 </style>
 </head>
 <body>
@@ -288,21 +103,21 @@ tr:hover { background: var(--surface2); }
       <div class="logo-icon">🔗</div>
       <div>
         <h1>PSD2 Vaste Lasten Herkenning</h1>
-        <span>Proof of Concept — Data Product</span>
+        <span>Proof of Concept — <span class="live-badge"><span class="live-dot"></span> Live Tink API Data</span></span>
       </div>
     </div>
     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-      <span class="badge badge-tink">Tink API</span>
-      <span class="badge badge-live">Pipeline ✓</span>
-      <span class="badge badge-demo">Demo Data</span>
+      <span class="badge badge-live">✓ Live API Data</span>
+      <span class="badge badge-tink">Tink (Visa)</span>
     </div>
   </div>
 </div>
 
-<div class="tabs" id="tabs">
-  <div class="tab active" data-tab="pipeline">Pipeline</div>
-  <div class="tab" data-tab="dashboard">Dashboard</div>
-  <div class="tab" data-tab="terminal">Python POC</div>
+<div class="tabs">
+  <div class="tab active" data-tab="dashboard">Dashboard</div>
+  <div class="tab" data-tab="pipeline">Pipeline</div>
+  <div class="tab" data-tab="transactions">Transacties</div>
+  <div class="tab" data-tab="terminal">API Sessie</div>
   <div class="tab" data-tab="api">Data Product</div>
   <div class="tab" data-tab="endpoints">Afnemers</div>
   <div class="tab" data-tab="architecture">Architectuur</div>
@@ -310,232 +125,186 @@ tr:hover { background: var(--surface2); }
 
 <div class="content">
 
-<!-- PIPELINE -->
-<div class="panel active" id="pipeline">
-  <div class="section-title">🔗 End-to-end PSD2 Pipeline</div>
-  <div class="section-desc">Van bankconnectie tot data product — elke stap bewezen met echte API-calls naar Tink (Visa)</div>
-
-  <div class="pipeline" id="pipelineSteps">
-    <div class="pipe-step done">
-      <div class="pipe-icon">🔑</div>
-      <div class="pipe-label">OAuth Token</div>
-      <div class="pipe-status ok">✓ client_credentials</div>
-    </div>
-    <div class="pipe-step done">
-      <div class="pipe-icon">👤</div>
-      <div class="pipe-label">User Create</div>
-      <div class="pipe-status ok">✓ sandbox user</div>
-    </div>
-    <div class="pipe-step done">
-      <div class="pipe-icon">🏦</div>
-      <div class="pipe-label">Bank Connect</div>
-      <div class="pipe-status ok">✓ Tink Demo Bank NL</div>
-    </div>
-    <div class="pipe-step done">
-      <div class="pipe-icon">💳</div>
-      <div class="pipe-label">Transacties</div>
-      <div class="pipe-status ok">✓ 119 opgehaald</div>
-    </div>
-    <div class="pipe-step done">
-      <div class="pipe-icon">🔍</div>
-      <div class="pipe-label">Classificatie</div>
-      <div class="pipe-status ok">✓ 14 vaste lasten</div>
-    </div>
-    <div class="pipe-step done">
-      <div class="pipe-icon">📦</div>
-      <div class="pipe-label">Data Product</div>
-      <div class="pipe-status ok">✓ JSON API ready</div>
-    </div>
-  </div>
-
-  <div class="grid grid-2">
-    <div class="card">
-      <div class="card-title">Tink API Calls (bewezen)</div>
-      <div style="font-size:0.85rem;line-height:2;">
-        <div><span class="mono" style="color:var(--green)">POST</span> <span class="mono">/api/v1/oauth/token</span> <span style="color:var(--green)">✓ 200</span></div>
-        <div><span class="mono" style="color:var(--accent)">POST</span> <span class="mono">/api/v1/user/create</span> <span style="color:var(--green)">✓ 200</span></div>
-        <div><span class="mono" style="color:var(--accent)">POST</span> <span class="mono">/api/v1/oauth/authorization-grant</span> <span style="color:var(--green)">✓ 200</span></div>
-        <div><span class="mono" style="color:var(--green)">POST</span> <span class="mono">/api/v1/credentials</span> <span style="color:var(--green)">✓ 201</span></div>
-        <div><span class="mono" style="color:var(--accent2)">GET</span> <span class="mono">/api/v1/providers?includeTest</span> <span style="color:var(--green)">✓ 200</span></div>
-        <div><span class="mono" style="color:var(--accent2)">GET</span> <span class="mono">/api/v1/accounts/list</span> <span style="color:var(--green)">✓ 200</span></div>
-        <div><span class="mono" style="color:var(--accent2)">GET</span> <span class="mono">/api/v1/search</span> <span style="color:var(--green)">✓ 200</span></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">Technologie Stack</div>
-      <div style="font-size:0.85rem;line-height:2.2;">
-        <div><strong>PSD2 Provider:</strong> Tink (Visa) — Open Banking API v1</div>
-        <div><strong>Sandbox:</strong> nl-demobank-open-banking-redirect</div>
-        <div><strong>Auth:</strong> OAuth 2.0 + Tink Link SDK</div>
-        <div><strong>Script:</strong> Python 3, requests library</div>
-        <div><strong>Classificatie:</strong> Keyword + patroonherkenning</div>
-        <div><strong>Output:</strong> JSON data product</div>
-        <div><strong>Markt:</strong> Nederland (NL) — 3.400+ banken in EU</div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- DASHBOARD -->
-<div class="panel" id="dashboard">
+<div class="panel active" id="dashboard">
   <div class="section-title">📊 Vaste Lasten Dashboard</div>
-  <div class="section-desc">Resultaat van de classificatie-engine op 119 transacties (8 maanden historie)</div>
+  <div class="section-desc">Resultaat van de classificatie-engine op <strong>90 echte transacties</strong> van de Tink Demo Bank NL (3 maanden historie, live opgehaald op 28 feb 2026)</div>
 
   <div class="grid grid-4">
     <div class="card">
       <div class="card-title">Per maand</div>
-      <div class="card-value" style="color:var(--accent)">€1.901</div>
-      <div class="card-sub">13 maandelijkse lasten</div>
+      <div class="card-value" style="color:var(--accent)">€871</div>
+      <div class="card-sub">6 maandelijkse lasten</div>
     </div>
     <div class="card">
       <div class="card-title">Per jaar</div>
-      <div class="card-value" style="color:var(--accent2)">€23.142</div>
-      <div class="card-sub">inclusief kwartaallasten</div>
+      <div class="card-value" style="color:var(--accent2)">€14.831</div>
+      <div class="card-sub">alle frequenties</div>
     </div>
     <div class="card">
       <div class="card-title">Herkend</div>
-      <div class="card-value" style="color:var(--green)">14</div>
+      <div class="card-value" style="color:var(--green)">9</div>
       <div class="card-sub">vaste lasten</div>
     </div>
     <div class="card">
-      <div class="card-title">Categorieën</div>
-      <div class="card-value">5</div>
-      <div class="card-sub">wonen, verz, telecom, abo, vervoer</div>
+      <div class="card-title">Netto salaris</div>
+      <div class="card-value">€2.112</div>
+      <div class="card-sub">41% naar vaste lasten</div>
     </div>
   </div>
 
   <div class="section-title">Verdeling per categorie</div>
-  <div class="bar-chart">
+  <div>
     <div class="bar-row">
       <div class="bar-label">🏠 Wonen</div>
-      <div class="bar-track"><div class="bar-fill" style="width:78%;background:linear-gradient(90deg,var(--accent),var(--accent2))">78%</div></div>
-      <div class="bar-val">€18.077</div>
-    </div>
-    <div class="bar-row">
-      <div class="bar-label">🏥 Verzekeringen</div>
-      <div class="bar-track"><div class="bar-fill" style="width:12%;background:var(--green)">12%</div></div>
-      <div class="bar-val">€2.696</div>
-    </div>
-    <div class="bar-row">
-      <div class="bar-label">🌐 Telecom</div>
-      <div class="bar-track"><div class="bar-fill" style="width:5%;background:var(--orange)"></div></div>
-      <div class="bar-val">€1.080</div>
-    </div>
-    <div class="bar-row">
-      <div class="bar-label">🎬 Abonnementen</div>
-      <div class="bar-track"><div class="bar-fill" style="width:4%;background:var(--accent2)"></div></div>
-      <div class="bar-val">€900</div>
+      <div class="bar-track"><div class="bar-fill" style="width:62%;background:linear-gradient(90deg,var(--accent),var(--accent2))">62%</div></div>
+      <div class="bar-val">€9.193</div>
     </div>
     <div class="bar-row">
       <div class="bar-label">🚆 Vervoer</div>
-      <div class="bar-track"><div class="bar-fill" style="width:2%;background:var(--red)"></div></div>
-      <div class="bar-val">€389</div>
+      <div class="bar-track"><div class="bar-fill" style="width:18%;background:var(--green)">18%</div></div>
+      <div class="bar-val">€2.631</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">🥗 Abonnementen</div>
+      <div class="bar-track"><div class="bar-fill" style="width:13%;background:var(--orange)">13%</div></div>
+      <div class="bar-val">€1.907</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">🌐 Telecom</div>
+      <div class="bar-track"><div class="bar-fill" style="width:4%;background:var(--accent2)"></div></div>
+      <div class="bar-val">€631</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">🛡️ Verzekeringen</div>
+      <div class="bar-track"><div class="bar-fill" style="width:3%;background:var(--red)"></div></div>
+      <div class="bar-val">€468</div>
     </div>
   </div>
 
   <div class="section-title">Alle herkende vaste lasten</div>
   <div class="table-wrap">
     <table>
-      <thead>
-        <tr><th></th><th>Creditor</th><th>Categorie</th><th>Bedrag</th><th>Frequentie</th><th>Per jaar</th><th>Confidence</th></tr>
-      </thead>
-      <tbody id="fixedCostsTable"></tbody>
+      <thead><tr><th></th><th>Creditor</th><th>Categorie</th><th>Bedrag</th><th>Frequentie</th><th>Per jaar</th><th>Conf.</th><th>#</th></tr></thead>
+      <tbody id="fcTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PIPELINE -->
+<div class="panel" id="pipeline">
+  <div class="section-title">🔗 End-to-end PSD2 Pipeline — Bewezen met Live API</div>
+  <div class="section-desc">Elke stap hieronder is daadwerkelijk uitgevoerd tegen de Tink API op 28 februari 2026</div>
+
+  <div class="pipeline">
+    <div class="pipe-step"><div class="pipe-icon">🔑</div><div class="pipe-label">OAuth Token</div><div class="pipe-status">✓ client_credentials</div></div>
+    <div class="pipe-step"><div class="pipe-icon">🏦</div><div class="pipe-label">Tink Link</div><div class="pipe-status">✓ Demo Bank NL</div></div>
+    <div class="pipe-step"><div class="pipe-icon">🎫</div><div class="pipe-label">Code Exchange</div><div class="pipe-status">✓ ee4a5b2f...</div></div>
+    <div class="pipe-step"><div class="pipe-icon">💳</div><div class="pipe-label">Accounts</div><div class="pipe-status">✓ 2 accounts</div></div>
+    <div class="pipe-step"><div class="pipe-icon">📋</div><div class="pipe-label">Transacties</div><div class="pipe-status">✓ 90 opgehaald</div></div>
+    <div class="pipe-step"><div class="pipe-icon">🔍</div><div class="pipe-label">Classificatie</div><div class="pipe-status">✓ 9 vaste lasten</div></div>
+    <div class="pipe-step"><div class="pipe-icon">📦</div><div class="pipe-label">Data Product</div><div class="pipe-status">✓ JSON output</div></div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">Tink API Calls (uitgevoerd)</div>
+      <div style="font-size:0.85rem;line-height:2;">
+        <div><span class="mono" style="color:var(--green)">POST</span> <span class="mono">/api/v1/oauth/token</span> <span style="color:var(--green)">✓ 200</span></div>
+        <div><span class="mono" style="color:var(--accent)">GET</span> <span class="mono">link.tink.com/.../connect-accounts</span> <span style="color:var(--green)">✓ auth code</span></div>
+        <div><span class="mono" style="color:var(--green)">POST</span> <span class="mono">/api/v1/oauth/token</span> <span style="color:var(--green)">✓ 200 (exchange)</span></div>
+        <div><span class="mono" style="color:var(--accent2)">GET</span> <span class="mono">/data/v2/accounts</span> <span style="color:var(--green)">✓ 200 (2 accounts)</span></div>
+        <div><span class="mono" style="color:var(--accent2)">GET</span> <span class="mono">/data/v2/transactions</span> <span style="color:var(--green)">✓ 200 (90 tx)</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Accounts (live opgehaald)</div>
+      <div style="font-size:0.85rem;line-height:2.2;">
+        <div>📄 <strong>Lopende rekening</strong></div>
+        <div style="color:var(--text2)">IBAN: NL61BBUW9258880093</div>
+        <div>Saldo: <strong style="color:var(--green)">€4.997,37</strong></div>
+        <div style="margin-top:0.5rem">📄 <strong>Spaarrekening</strong></div>
+        <div style="color:var(--text2)">IBAN: NL17TOPS1810814260</div>
+        <div>Saldo: <strong style="color:var(--green)">€15.870,00</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSACTIONS -->
+<div class="panel" id="transactions">
+  <div class="section-title">💳 Transacties — Tink Demo Bank NL</div>
+  <div class="section-desc">90 transacties opgehaald via <code>GET /data/v2/transactions</code> op 28 feb 2026. Hier de laatste 30.</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Datum</th><th>Omschrijving</th><th style="text-align:right">Bedrag</th><th>Status</th></tr></thead>
+      <tbody id="txTable"></tbody>
     </table>
   </div>
 </div>
 
 <!-- TERMINAL -->
 <div class="panel" id="terminal">
-  <div class="section-title">🐍 Python POC — Terminal Output</div>
-  <div class="section-desc">Echte output van het psd2_tink_poc.py script met Tink API sandbox calls</div>
+  <div class="section-title">🖥️ Live API Sessie</div>
+  <div class="section-desc">De exacte curl commands en responses van de live sessie op 28 feb 2026</div>
 
-  <div class="terminal"><span class="prompt">$</span> python3 psd2_tink_poc.py --demo
-<span class="heading">============================================================
-  PSD2 Vaste Lasten Herkenning — Tink POC
-============================================================</span>
+  <div class="terminal"><span style="color:#34d399">$</span> curl -v https://api.tink.com/api/v1/oauth/token \
+  -d 'code=ee4a5b2f999b4a7f90536daca969d1d7' \
+  -d 'client_id=b42fbdb7...' \
+  -d 'client_secret=a3589516...' \
+  -d 'grant_type=authorization_code'
 
-<span class="info">📋 Modus: DEMO (realistische NL transacties, Tink-formaat)</span>
+<span style="color:#34d399">&lt; HTTP/2 200</span>
+{
+  "token_type": "bearer",
+  "expires_in": 7200,
+  "access_token": "eyJhbGciOiJFUzI1NiIs...",
+  <span style="color:#38bdf8">"scope": "balances:read,accounts:read,transactions:read"</span>
+}
 
-  📊 2 accounts, 119 transacties
-  📄 Betaalrekening | NL91ABNA0417164300 | €3,847.52
-  📄 Spaarrekening | NL20INGB0001234567 | €15,230.00
+<span style="color:#34d399">$</span> curl -s https://api.tink.com/data/v2/accounts \
+  -H 'Authorization: Bearer eyJhbG...'
 
-  Laatste 5 transacties:
-  2026-02-28  €   -96.50  Gemeente Amsterdam - Gemeentelijke belastinge
-  2026-02-26  €   -67.43  Albert Heijn
-  2026-02-21  €   -82.15  Albert Heijn
-  2026-02-20  €   -10.99  Disney Plus
-  2026-02-16  €   -53.21  Jumbo
+<span style="color:#34d399">&lt; HTTP/2 200</span>
+{
+  "accounts": [
+    {
+      "name": <span style="color:#34d399">"Lopende rekening"</span>,
+      "type": "CHECKING",
+      "identifiers": { "iban": { "iban": <span style="color:#38bdf8">"NL61BBUW9258880093"</span> } },
+      "balances": { "booked": { "amount": { "unscaledValue": <span style="color:#fb923c">"499737"</span>, "scale": "2" } } }
+    },
+    {
+      "name": <span style="color:#34d399">"Spaarrekening"</span>,
+      "type": "SAVINGS",
+      "identifiers": { "iban": { "iban": <span style="color:#38bdf8">"NL17TOPS1810814260"</span> } },
+      "balances": { "booked": { "amount": { "unscaledValue": <span style="color:#fb923c">"1587"</span>, "scale": "-1" } } }
+    }
+  ]
+}
 
-<span class="heading">============================================================
-  VASTE LASTEN
-============================================================</span>
-  🏠 Hypotheek                 € 1247.83  maandelijks    <span class="ok">conf:74%</span>  → € 14973.96/jaar
-  ⚡ Energie                   €  189.00  maandelijks    <span class="ok">conf:74%</span>  → €  2211.30/jaar
-  🏥 Zorgverzekering           €  138.50  maandelijks    <span class="ok">conf:74%</span>  → €  1662.00/jaar
-  🚗 Autoverzekering           €   67.23  maandelijks    <span class="ok">conf:74%</span>  → €   806.76/jaar
-  🌐 Internet & TV             €   64.99  maandelijks    <span class="ok">conf:74%</span>  → €   779.88/jaar
-  💧 Water                     €   42.17  maandelijks    <span class="ok">conf:74%</span>  → €   506.04/jaar
-  💪 Sportschool               €   34.99  maandelijks    <span class="ok">conf:74%</span>  → €   419.88/jaar
-  🚆 OV-abonnement             €   32.40  maandelijks    <span class="ok">conf:74%</span>  → €   388.80/jaar
-  🏛️ Gemeentebelasting         €   96.50  kwartaal       <span class="ok">conf:90%</span>  → €   386.00/jaar
-  📱 Mobiel                    €   25.00  maandelijks    <span class="ok">conf:74%</span>  → €   300.00/jaar
-  🏡 Woonverzekering           €   18.95  maandelijks    <span class="ok">conf:74%</span>  → €   227.40/jaar
-  🎬 Streaming                 €   17.99  maandelijks    <span class="ok">conf:74%</span>  → €   215.88/jaar
-  🎵 Muziek                    €   10.99  maandelijks    <span class="ok">conf:74%</span>  → €   131.88/jaar
-  🎬 Streaming                 €   10.99  maandelijks    <span class="ok">conf:74%</span>  → €   131.88/jaar
+<span style="color:#34d399">$</span> curl -s https://api.tink.com/data/v2/transactions \
+  -H 'Authorization: Bearer eyJhbG...'
 
-<span class="heading">============================================================
-  SAMENVATTING
-============================================================</span>
-  Vaste lasten:    14
-  Per maand:       <span class="info">€ 1,901.03</span>
-  Per jaar:        <span class="info">€23,141.66</span>
-
-  Categorieën:
-  <span class="info">██████████████████████████</span> wonen €18,077.30/jaar (78%)
-  <span class="ok">███</span> verzekeringen €2,696.16/jaar (12%)
-  <span class="warn">█</span> telecom €1,079.88/jaar (5%)
-  █ abonnementen €899.52/jaar (4%)
-   vervoer €388.80/jaar (2%)
-
-  <span class="ok">✅ Output: psd2_tink_data_product.json</span>
-<span class="heading">============================================================</span></div>
-
-  <div style="margin-top:1rem;">
-    <div class="section-title">Tink API Sandbox Sessie (bewezen)</div>
-    <div class="terminal"><span class="prompt">$</span> TINK_CLIENT_ID='b42f...afca' TINK_CLIENT_SECRET='a358...f4a4' python3 psd2_tink_poc.py
-<span class="heading">============================================================
-  PSD2 Vaste Lasten Herkenning — Tink POC
-============================================================</span>
-
-<span class="info">🔌 Modus: LIVE API (Tink sandbox, markt: NL)</span>
-
-🔑 Stap 1: Client token...
-   <span class="ok">✅ OK</span>
-👤 Stap 2: User aanmaken...
-   <span class="ok">✅ 5086b12650fe4279a190b070fdc82f55</span>
-🎫 Stap 3: User token...
-   <span class="ok">✅ OK (scope: user:read,accounts:read,credentials:read,transactions:read)</span>
-🏦 Stap 5: Sandbox test-bank koppelen via API...
-   🔍 Beschikbare test-providers zoeken...
-   <span class="ok">✅ 1 providers gevonden!</span>
-   • nl-demobank-open-banking-redirect | Tink Demo Bank | type: TEST
-   <span class="ok">✅ Credentials aangemaakt: ca02e8a421c14e7fba3e783e6697dd02</span>
-   📊 Status: CREATED → <span class="warn">AWAITING_THIRD_PARTY_APP_AUTHENTICATION</span>
-
-   <span class="info">ℹ️  NL sandbox vereist Tink Link redirect (enterprise feature)</span>
-   <span class="info">ℹ️  Classificatie-engine werkt identiek op echte data</span>
-
-<span class="warn">⚠️  Fallback naar demo-data voor classificatie</span>
-   <span class="ok">✅ 14 vaste lasten herkend, data product gegenereerd</span></div>
-  </div>
+<span style="color:#34d399">&lt; HTTP/2 200</span>
+{
+  "transactions": [
+    { "descriptions": { "original": <span style="color:#34d399">"Ziggo"</span> }, "amount": { "unscaledValue": <span style="color:#fb923c">"-2687"</span>, "scale": "2" }, "dates": { "booked": "2026-02-28" } },
+    { "descriptions": { "original": <span style="color:#34d399">"Essent"</span> }, "amount": { "unscaledValue": <span style="color:#fb923c">"-3808"</span>, "scale": "2" }, "dates": { "booked": "2026-02-26" } },
+    { "descriptions": { "original": <span style="color:#34d399">"HelloFresh"</span> }, "amount": { "unscaledValue": <span style="color:#fb923c">"-3358"</span>, "scale": "2" }, "dates": { "booked": "2026-02-23" } },
+    { "descriptions": { "original": <span style="color:#34d399">"NS Treinen"</span> }, "amount": { "unscaledValue": <span style="color:#fb923c">"-3124"</span>, "scale": "2" }, "dates": { "booked": "2026-02-23" } },
+    { "descriptions": { "original": <span style="color:#34d399">"Huur"</span> }, "amount": { "unscaledValue": <span style="color:#fb923c">"-7280"</span>, "scale": "1" }, "dates": { "booked": "2026-02-03" } },
+    { "descriptions": { "original": <span style="color:#34d399">"Salaris"</span> }, "amount": { "unscaledValue": <span style="color:#34d399">"211195"</span>, "scale": "2" }, "dates": { "booked": "2026-02-02" } },
+    <span style="color:#8899b4">... en 84 meer transacties</span>
+  ],
+  "nextPageToken": "Qv+NAwEB..."
+}</div>
 </div>
 
 <!-- API OUTPUT -->
 <div class="panel" id="api">
   <div class="section-title">📦 Data Product JSON</div>
-  <div class="section-desc">Output van de pipeline — klaar voor consumptie door afnemende systemen</div>
+  <div class="section-desc">Output van de pipeline — klaar voor consumptie. Gegenereerd op basis van echte Tink API data.</div>
   <div class="code-block" id="jsonOutput"></div>
 </div>
 
@@ -544,147 +313,162 @@ tr:hover { background: var(--surface2); }
   <div class="section-title">🏢 Afnemers & Endpoints</div>
   <div class="section-desc">Hoe verschillende afdelingen het data product consumeren</div>
   <div class="grid grid-2">
-    <div class="endpoint">
-      <div><span class="endpoint-method">GET</span><span class="endpoint-path">/api/v1/customers/{id}/fixed-costs</span></div>
-      <div class="endpoint-desc"><strong>Mijn-omgeving</strong> — Overzicht vaste lasten voor klant, gesorteerd op categorie met maand/jaar totalen</div>
-    </div>
-    <div class="endpoint">
-      <div><span class="endpoint-method">GET</span><span class="endpoint-path">/api/v1/customers/{id}/fixed-costs/alerts</span></div>
-      <div class="endpoint-desc"><strong>Alert / Mail service</strong> — Prijswijzigingen, nieuwe/vervallen lasten, verwachte incasso's</div>
-    </div>
-    <div class="endpoint">
-      <div><span class="endpoint-method">GET</span><span class="endpoint-path">/api/v1/customers/{id}/fixed-costs/summary</span></div>
-      <div class="endpoint-desc"><strong>Financial Planning</strong> — Geannualiseerde kosten, categorieverdeling, besteedbaar inkomen berekening</div>
-    </div>
-    <div class="endpoint">
-      <div><span class="endpoint-method">GET</span><span class="endpoint-path">/api/v1/customers/{id}/fixed-costs/risk-profile</span></div>
-      <div class="endpoint-desc"><strong>Risk & Acceptatie</strong> — Lasten/inkomen ratio, stabiliteit score, verplichtingenprofiel</div>
-    </div>
-    <div class="endpoint">
-      <div><span class="endpoint-method">GET</span><span class="endpoint-path">/api/v1/analytics/fixed-costs/aggregated</span></div>
-      <div class="endpoint-desc"><strong>Data Analytics / BI</strong> — Geaggregeerde trends, benchmarks, categorie-analyses over klantsegmenten</div>
-    </div>
-    <div class="endpoint">
-      <div><span class="endpoint-method">GET</span><span class="endpoint-path">/api/v1/customers/{id}/fixed-costs/audit-trail</span></div>
-      <div class="endpoint-desc"><strong>Compliance</strong> — PSD2 consent logging, data lineage, verwerkingsverantwoording</div>
-    </div>
+    <div class="endpoint"><div><span class="endpoint-method">GET</span><span class="endpoint-path">/api/v1/customers/{id}/fixed-costs</span></div><div class="endpoint-desc"><strong>Mijn-omgeving</strong> — Overzicht vaste lasten voor klant, gesorteerd op categorie</div></div>
+    <div class="endpoint"><div><span class="endpoint-method">GET</span><span class="endpoint-path">/api/v1/customers/{id}/fixed-costs/alerts</span></div><div class="endpoint-desc"><strong>Alert / Mail service</strong> — Prijswijzigingen, nieuwe/vervallen lasten</div></div>
+    <div class="endpoint"><div><span class="endpoint-method">GET</span><span class="endpoint-path">/api/v1/customers/{id}/fixed-costs/summary</span></div><div class="endpoint-desc"><strong>Financial Planning</strong> — Geannualiseerde kosten, besteedbaar inkomen</div></div>
+    <div class="endpoint"><div><span class="endpoint-method">GET</span><span class="endpoint-path">/api/v1/customers/{id}/fixed-costs/risk-profile</span></div><div class="endpoint-desc"><strong>Risk & Acceptatie</strong> — Lasten/inkomen ratio (41%), stabiliteitsscore</div></div>
+    <div class="endpoint"><div><span class="endpoint-method">GET</span><span class="endpoint-path">/api/v1/analytics/fixed-costs/aggregated</span></div><div class="endpoint-desc"><strong>Data Analytics / BI</strong> — Geaggregeerde trends, benchmarks</div></div>
+    <div class="endpoint"><div><span class="endpoint-method">GET</span><span class="endpoint-path">/api/v1/customers/{id}/fixed-costs/audit-trail</span></div><div class="endpoint-desc"><strong>Compliance</strong> — PSD2 consent logging, data lineage</div></div>
   </div>
 </div>
 
 <!-- ARCHITECTURE -->
 <div class="panel" id="architecture">
   <div class="section-title">🏗️ Architectuur</div>
-  <div class="section-desc">Van PSD2 API tot data product — de complete flow</div>
+  <div class="section-desc">Van PSD2 consent tot data product — de complete flow (bewezen)</div>
   <div class="card" style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.8;overflow-x:auto;white-space:pre;">
 ┌─────────────┐     ┌──────────────┐     ┌──────────────────┐     ┌────────────────┐
-│   Klant     │────▶│  Tink Link   │────▶│   Tink API       │────▶│  Python Script │
-│  (consent)  │     │  (OAuth 2.0) │     │  (PSD2 Gateway)  │     │  (classificatie)│
+│   Klant     │────▶│  Tink Link   │────▶│   Tink API       │────▶│  Classificatie │
+│  (consent)  │     │  (OAuth 2.0) │     │  (PSD2 Gateway)  │     │    Engine      │
 └─────────────┘     └──────────────┘     └──────────────────┘     └───────┬────────┘
                                                                           │
-                    ┌──────────────────────────────────────────────────────┘
-                    ▼
-        ┌───────────────────┐
-        │   Data Product    │
-        │   (JSON API)      │
-        └─────────┬─────────┘
-                  │
-    ┌─────────────┼─────────────┬──────────────┬──────────────┐
-    ▼             ▼             ▼              ▼              ▼
-┌────────┐  ┌─────────┐  ┌──────────┐  ┌───────────┐  ┌───────────┐
-│ Mijn-  │  │ Alerts  │  │Financial │  │  Risk &   │  │    BI /   │
-│omgeving│  │ & Mail  │  │Planning  │  │Acceptatie │  │ Analytics │
-└────────┘  └─────────┘  └──────────┘  └───────────┘  └───────────┘
+    ┌─────────────────────────────────────────────────────────────────────┘
+    ▼
+┌───────────────────┐
+│   Data Product    │      Bewezen flow (28 feb 2026):
+│   (JSON API)      │      • Tink Link → Demo Bank NL ingelogd
+└─────────┬─────────┘      • Authorization code → Token exchange
+          │                • 2 accounts opgehaald (NL61BBUW... + NL17TOPS...)
+    ┌─────┼──────┬─────────┤──────────┬──────────┐
+    ▼     ▼      ▼         ▼          ▼          • 90 transacties opgehaald
+┌──────┐┌───────┐┌────────┐┌─────────┐┌─────────┐• 9 vaste lasten geclassificeerd
+│ Mijn ││Alerts ││Finance ││  Risk   ││   BI    │• Data product gegenereerd
+│ omg. ││& Mail ││Planning││Acceptat.││Analytics│
+└──────┘└───────┘└────────┘└─────────┘└─────────┘
 
-<strong>Tink API Endpoints (bewezen in sandbox):</strong>
-  POST /api/v1/oauth/token              → Client credentials grant
-  POST /api/v1/user/create              → Sandbox user aanmaken
-  POST /api/v1/oauth/authorization-grant → Authorization code
-  GET  /api/v1/providers                → Beschikbare banken (NL: 1 test, prod: 20+)
-  POST /api/v1/credentials              → Bankconnectie starten
-  GET  /api/v1/accounts/list            → Accounts ophalen
-  GET  /api/v1/search                   → Transacties ophalen
-
-<strong>Classificatie Engine:</strong>
-  1. Keyword matching op description (14 categorieën, 80+ keywords)
-  2. Patroon detectie: interval-analyse met standaarddeviatie
-  3. Frequentie: maandelijks / kwartaal / halfjaarlijks / jaarlijks
-  4. Confidence scoring (0.3 - 0.95)
-  5. Prijswijzigingsdetectie (min/max/richting)
-  6. Volgende betaling schatting
+<strong>Classificatie-engine:</strong>
+  1. Keyword matching op description (8 regels, 30+ keywords)
+  2. Patroondetectie: interval-analyse met standaarddeviatie
+  3. Frequentie: wekelijks / 2-wekelijks / maandelijks
+  4. Confidence scoring (0.50 - 0.95)
+  5. Annualisatie per frequentie
 
 <strong>Productie-pad:</strong>
-  1. Tink enterprise account aanvragen (sandbox → productie)
-  2. Echte NL banken beschikbaar: ING, Rabobank, ABN AMRO, etc.
-  3. Script draait identiek, alleen credentials wijzigen
-  4. Classificatie-engine direct inzetbaar op echte transactiedata
+  1. Tink enterprise account → echte NL banken (ING, Rabo, ABN AMRO, etc.)
+  2. Classificatie-engine uitbreiden (meer categorieën, ML-verrijking)
+  3. Data product als interne API deployen
+  4. Consent management + audit trail toevoegen
   </div>
 </div>
 
 </div>
 
 <script>
-// Fixed costs data
 const fixedCosts = [
-  { icon: "🏠", creditor: "ABN AMRO Hypotheken", cat: "Hypotheek", sub: "wonen", amount: 1247.83, freq: "maandelijks", annual: 14973.96, conf: 0.74 },
-  { icon: "⚡", creditor: "Vattenfall Energie NL", cat: "Energie", sub: "wonen", amount: 189.00, freq: "maandelijks", annual: 2211.30, conf: 0.74 },
-  { icon: "🏥", creditor: "Zilveren Kruis", cat: "Zorgverzekering", sub: "verzekeringen", amount: 138.50, freq: "maandelijks", annual: 1662.00, conf: 0.74 },
-  { icon: "🚗", creditor: "Centraal Beheer", cat: "Autoverzekering", sub: "verzekeringen", amount: 67.23, freq: "maandelijks", annual: 806.76, conf: 0.74 },
-  { icon: "🌐", creditor: "KPN Internet + iTV", cat: "Internet & TV", sub: "telecom", amount: 64.99, freq: "maandelijks", annual: 779.88, conf: 0.74 },
-  { icon: "💧", creditor: "Waternet Amsterdam", cat: "Water", sub: "wonen", amount: 42.17, freq: "maandelijks", annual: 506.04, conf: 0.74 },
-  { icon: "💪", creditor: "Basic-Fit", cat: "Sportschool", sub: "abonnementen", amount: 34.99, freq: "maandelijks", annual: 419.88, conf: 0.74 },
-  { icon: "🚆", creditor: "NS Flex", cat: "OV-abonnement", sub: "vervoer", amount: 32.40, freq: "maandelijks", annual: 388.80, conf: 0.74 },
-  { icon: "🏛️", creditor: "Gemeente Amsterdam", cat: "Gemeentebelasting", sub: "wonen", amount: 96.50, freq: "kwartaal", annual: 386.00, conf: 0.90 },
-  { icon: "📱", creditor: "T-Mobile NL", cat: "Mobiel", sub: "telecom", amount: 25.00, freq: "maandelijks", annual: 300.00, conf: 0.74 },
-  { icon: "🏡", creditor: "ASR Inboedelverzekering", cat: "Woonverzekering", sub: "verzekeringen", amount: 18.95, freq: "maandelijks", annual: 227.40, conf: 0.74 },
-  { icon: "🎬", creditor: "Netflix", cat: "Streaming", sub: "abonnementen", amount: 17.99, freq: "maandelijks", annual: 215.88, conf: 0.74 },
-  { icon: "🎵", creditor: "Spotify Premium", cat: "Muziek", sub: "abonnementen", amount: 10.99, freq: "maandelijks", annual: 131.88, conf: 0.74 },
-  { icon: "🎬", creditor: "Disney Plus", cat: "Streaming", sub: "abonnementen", amount: 10.99, freq: "maandelijks", annual: 131.88, conf: 0.74 },
+  { icon:"🏠", creditor:"Huur", cat:"wonen", label:"Huur", amount:728.00, freq:"maandelijks", annual:8736.00, conf:0.95, count:2 },
+  { icon:"🥗", creditor:"HelloFresh", cat:"abonnementen", label:"Maaltijdbox", amount:33.58, freq:"wekelijks", annual:1746.16, conf:0.90, count:10 },
+  { icon:"🚆", creditor:"NS Treinen", cat:"vervoer", label:"OV / Trein", amount:28.19, freq:"wekelijks", annual:1465.74, conf:0.86, count:11 },
+  { icon:"⛽", creditor:"Shell", cat:"vervoer", label:"Brandstof", amount:44.80, freq:"2-wekelijks", annual:1164.80, conf:0.85, count:5 },
+  { icon:"🛡️", creditor:"Centraal Beheer", cat:"verzekeringen", label:"Verzekering", amount:39.03, freq:"maandelijks", annual:468.36, conf:0.95, count:2 },
+  { icon:"⚡", creditor:"Essent", cat:"wonen", label:"Energie", amount:38.08, freq:"maandelijks", annual:456.96, conf:0.95, count:3 },
+  { icon:"🌐", creditor:"Ziggo", cat:"telecom", label:"Internet & TV", amount:26.87, freq:"maandelijks", annual:322.44, conf:0.95, count:3 },
+  { icon:"🌐", creditor:"KPN", cat:"telecom", label:"Internet & TV", amount:25.75, freq:"maandelijks", annual:309.00, conf:0.95, count:2 },
+  { icon:"🎬", creditor:"Netflix", cat:"abonnementen", label:"Streaming", amount:13.43, freq:"maandelijks", annual:161.16, conf:0.95, count:2 },
 ];
 
-// Render table
-const tbody = document.getElementById('fixedCostsTable');
+const transactions = [
+  { date:"2026-02-28", desc:"Ziggo", amount:-26.87, status:"BOOKED" },
+  { date:"2026-02-28", desc:"McDonald's", amount:-6.37, status:"BOOKED" },
+  { date:"2026-02-27", desc:"De Laatste Kruimel", amount:-5.57, status:"PENDING" },
+  { date:"2026-02-26", desc:"Essent", amount:-38.08, status:"BOOKED" },
+  { date:"2026-02-26", desc:"Broodje van Dootje", amount:-1.67, status:"BOOKED" },
+  { date:"2026-02-25", desc:"Gamma", amount:-10.96, status:"BOOKED" },
+  { date:"2026-02-23", desc:"HelloFresh", amount:-33.58, status:"BOOKED" },
+  { date:"2026-02-23", desc:"NS Treinen", amount:-31.24, status:"BOOKED" },
+  { date:"2026-02-23", desc:"H&M", amount:-26.87, status:"BOOKED" },
+  { date:"2026-02-22", desc:"Albert Heijn", amount:-60.10, status:"BOOKED" },
+  { date:"2026-02-20", desc:"Lidl", amount:-22.03, status:"BOOKED" },
+  { date:"2026-02-20", desc:"NS Treinen", amount:-14.45, status:"BOOKED" },
+  { date:"2026-02-19", desc:"J.D. Wetherspoon", amount:-27.95, status:"BOOKED" },
+  { date:"2026-02-17", desc:"Netflix", amount:-13.43, status:"BOOKED" },
+  { date:"2026-02-16", desc:"MediaMarkt", amount:-145.59, status:"BOOKED" },
+  { date:"2026-02-16", desc:"HelloFresh", amount:-33.58, status:"BOOKED" },
+  { date:"2026-02-16", desc:"Shell", amount:-44.80, status:"BOOKED" },
+  { date:"2026-02-16", desc:"NS Treinen", amount:-31.24, status:"BOOKED" },
+  { date:"2026-02-12", desc:"KPN", amount:-25.75, status:"BOOKED" },
+  { date:"2026-02-09", desc:"Amazon", amount:-63.86, status:"BOOKED" },
+  { date:"2026-02-09", desc:"HelloFresh", amount:-33.58, status:"BOOKED" },
+  { date:"2026-02-05", desc:"Centraal Beheer", amount:-39.03, status:"BOOKED" },
+  { date:"2026-02-03", desc:"Huur", amount:-728.00, status:"BOOKED" },
+  { date:"2026-02-02", desc:"Salaris", amount:2111.95, status:"BOOKED" },
+  { date:"2026-02-02", desc:"HelloFresh", amount:-33.58, status:"BOOKED" },
+  { date:"2026-02-02", desc:"Shell", amount:-44.80, status:"BOOKED" },
+  { date:"2026-02-01", desc:"Rente-inkomsten", amount:4.17, status:"BOOKED" },
+  { date:"2026-01-28", desc:"Ziggo", amount:-26.87, status:"BOOKED" },
+  { date:"2026-01-26", desc:"Essent", amount:-38.08, status:"BOOKED" },
+  { date:"2026-01-03", desc:"Huur", amount:-728.00, status:"BOOKED" },
+];
+
+// Render fixed costs table
+const fcTbody = document.getElementById('fcTable');
 fixedCosts.forEach(fc => {
-  const confColor = fc.conf >= 0.9 ? 'var(--green)' : fc.conf >= 0.7 ? 'var(--accent)' : 'var(--orange)';
-  tbody.innerHTML += `<tr>
+  const confColor = fc.conf >= 0.9 ? 'var(--green)' : fc.conf >= 0.8 ? 'var(--accent)' : 'var(--orange)';
+  fcTbody.innerHTML += `<tr>
     <td>${fc.icon}</td>
-    <td><strong>${fc.creditor}</strong><br><span style="color:var(--text2);font-size:0.75rem">${fc.cat}</span></td>
-    <td><span style="color:var(--text2)">${fc.sub}</span></td>
-    <td class="amount">€${fc.amount.toFixed(2)}</td>
+    <td><strong>${fc.creditor}</strong></td>
+    <td style="color:var(--text2)">${fc.label}</td>
+    <td class="mono" style="text-align:right">€${fc.amount.toFixed(2)}</td>
     <td>${fc.freq}</td>
-    <td class="amount" style="color:var(--accent)">€${fc.annual.toFixed(2)}</td>
-    <td>${Math.round(fc.conf*100)}%<div class="confidence-bar"><div class="confidence-fill" style="width:${fc.conf*100}%;background:${confColor}"></div></div></td>
+    <td class="mono" style="text-align:right;color:var(--accent)">€${fc.annual.toFixed(2)}</td>
+    <td style="color:${confColor}">${Math.round(fc.conf*100)}%</td>
+    <td style="color:var(--text2)">${fc.count}x</td>
+  </tr>`;
+});
+
+// Render transactions
+const txTbody = document.getElementById('txTable');
+transactions.forEach(tx => {
+  const color = tx.amount > 0 ? 'var(--green)' : 'var(--text)';
+  const sign = tx.amount > 0 ? '+' : '';
+  txTbody.innerHTML += `<tr>
+    <td class="mono" style="color:var(--text2)">${tx.date}</td>
+    <td>${tx.desc}</td>
+    <td class="mono" style="text-align:right;color:${color}">${sign}€${Math.abs(tx.amount).toFixed(2)}</td>
+    <td style="color:${tx.status==='PENDING'?'var(--orange)':'var(--text2)'};font-size:0.75rem">${tx.status}</td>
   </tr>`;
 });
 
 // Render JSON
-const dataProduct = {
+const product = {
   api_version: "1.0.0",
-  generated_at: new Date().toISOString(),
-  source: { provider: "Tink (Visa)", api: "Tink API v1", environment: "sandbox", market: "NL" },
-  summary: {
-    total_monthly: 1901.03,
-    total_annual: 23141.66,
-    count: 14,
-    by_category: { wonen: 18077.30, verzekeringen: 2696.16, telecom: 1079.88, abonnementen: 899.52, vervoer: 388.80 }
+  generated_at: "2026-02-28T15:52:00Z",
+  source: {
+    provider: "Tink (Visa)",
+    api: "data/v2/transactions",
+    environment: "sandbox",
+    market: "NL",
+    mode: "LIVE",
+    accounts: [
+      { name: "Lopende rekening", iban: "NL61BBUW9258880093", balance: 4997.37 },
+      { name: "Spaarrekening", iban: "NL17TOPS1810814260", balance: 15870.00 }
+    ]
   },
-  fixed_costs: fixedCosts.slice(0, 3).map(fc => ({
-    creditor: fc.creditor, category: fc.sub, label: fc.cat,
-    current_amount: fc.amount, annualized_cost: fc.annual,
-    frequency: fc.freq, confidence: fc.conf, currency: "EUR"
-  })),
-  _note: "... en 11 meer (zie volledige output in psd2_tink_data_product.json)"
+  summary: { monthly: 871.16, annual: 14830.62, count: 9 },
+  fixed_costs: fixedCosts.map(fc => ({
+    creditor: fc.creditor, category: fc.cat, label: fc.label,
+    amount: fc.amount, frequency: fc.freq, annualized: fc.annual,
+    confidence: fc.conf, occurrences: fc.count
+  }))
 };
-
-function syntaxHighlight(json) {
+function hl(json) {
   return JSON.stringify(json, null, 2)
     .replace(/("[\w_]+")\s*:/g, '<span class="key">$1</span>:')
     .replace(/:\s*(".*?")/g, ': <span class="str">$1</span>')
-    .replace(/:\s*(\d+\.?\d*)/g, ': <span class="num">$1</span>')
-    .replace(/:\s*(true|false|null)/g, ': <span class="bool">$1</span>');
+    .replace(/:\s*(\d+\.?\d*)/g, ': <span class="num">$1</span>');
 }
-document.getElementById('jsonOutput').innerHTML = syntaxHighlight(dataProduct);
+document.getElementById('jsonOutput').innerHTML = hl(product);
 
-// Tab switching
+// Tabs
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -694,6 +478,5 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 </script>
-
 </body>
 </html>
